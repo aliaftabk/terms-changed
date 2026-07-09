@@ -42,14 +42,14 @@ async function init() {
 
   const onboarded = await store.isOnboarded();
   if (!onboarded) {
-    show("onboarding");
+    showScreen("onboarding");
     return;
   }
-  show("app");
+  showScreen("app");
   await refreshCurrentTab();
 }
 
-function show(which) {
+function showScreen(which) {
   $("onboarding").classList.toggle("hidden", which !== "onboarding");
   $("app").classList.toggle("hidden", which !== "app");
   $("onboarding").setAttribute("aria-hidden", which !== "onboarding");
@@ -61,7 +61,7 @@ function show(which) {
 function wireStaticEvents() {
   $("onboarding-start").addEventListener("click", async () => {
     await store.setOnboarded(true);
-    show("app");
+    showScreen("app");
     await refreshCurrentTab();
   });
 
@@ -99,9 +99,26 @@ function wireStaticEvents() {
   $("confirm-ok").addEventListener("click", () => resolveConfirm(true));
 
   // Refresh the current tab info when the panel regains focus.
-  window.addEventListener("focus", () => {
-    if (!$("app").classList.contains("hidden")) refreshCurrentTab();
-  });
+  window.addEventListener("focus", maybeRefresh);
+
+  // Keep the Current Page section in sync as the user switches or
+  // navigates tabs while the panel is open.
+  if (chrome.tabs && chrome.tabs.onActivated) {
+    chrome.tabs.onActivated.addListener(maybeRefresh);
+  }
+  if (chrome.tabs && chrome.tabs.onUpdated) {
+    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+      if (changeInfo.status === "complete" && tab.active) maybeRefresh();
+    });
+  }
+  if (chrome.windows && chrome.windows.onFocusChanged) {
+    chrome.windows.onFocusChanged.addListener(maybeRefresh);
+  }
+}
+
+// Refresh only when the app (not onboarding) is visible.
+function maybeRefresh() {
+  if (!$("app").classList.contains("hidden")) refreshCurrentTab();
 }
 
 function switchView(view) {
@@ -120,7 +137,12 @@ function switchView(view) {
 // Current tab handling
 // ---------------------------------------------------------------------------
 async function getActiveTab() {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  // Prefer the active tab in the current window; fall back to the last
+  // focused normal window (the side panel can shift which window is "current").
+  let tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tabs || !tabs.length) {
+    tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  }
   return tabs && tabs[0] ? tabs[0] : null;
 }
 

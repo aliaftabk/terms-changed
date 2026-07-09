@@ -33,6 +33,9 @@ and IndexedDB:
 ## Permissions and why they are used
 
 - **storage** — save your watched pages, snapshots, and settings locally.
+- **tabs** — read the current tab's title and URL so the side panel can show the
+  current page and tell whether it is already watched. This information is used
+  only on your device and is never transmitted anywhere.
 - **activeTab** + **scripting** — read the readable text of the current tab
   **only when you click a button** (Watch / Check / Update baseline).
 - **sidePanel** — display the extension's user interface in Chrome's side panel.

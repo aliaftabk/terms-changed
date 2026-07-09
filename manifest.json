@@ -25,7 +25,7 @@
     "service_worker": "src/background/service_worker.js",
     "type": "module"
   },
-  "permissions": ["storage", "activeTab", "scripting", "sidePanel"],
+  "permissions": ["storage", "tabs", "activeTab", "scripting", "sidePanel"],
   "optional_permissions": ["alarms", "notifications"],
   "optional_host_permissions": ["https://*/*", "http://*/*"],
   "content_security_policy": {

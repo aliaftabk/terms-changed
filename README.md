@@ -123,7 +123,7 @@ terms-changed/
 
 ## Technologies Used
 
-* **Manifest V3** Chrome extension APIs (`sidePanel`, `scripting`, `activeTab`, `storage`)
+* **Manifest V3** Chrome extension APIs (`sidePanel`, `scripting`, `activeTab`, `tabs`, `storage`)
 * **Plain HTML, CSS, and JavaScript (ES modules)** — no frameworks, no build step
 * **`chrome.scripting.executeScript`** for user-triggered page text extraction
 * **Web Crypto (`crypto.subtle`)** for SHA-256 change detection
@@ -156,7 +156,7 @@ See [privacy-policy.md](privacy-policy.md). In short: watched page URLs and page
    zip -r terms-changed.zip manifest.json src icons LICENSE README.md privacy-policy.md
    ```
 2. Upload it in the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole) via **Add new item**.
-3. Declare privacy practices (data stored locally, not sold/shared) and justify permissions: `activeTab` + `scripting` (read current page on user action), `storage` (local persistence), `sidePanel` (UI). Broad host access is **not** requested at install time.
+3. Declare privacy practices (data stored locally, not sold/shared) and justify permissions: `tabs` (show the current tab's title/URL in the panel and match it to a watched page — no URLs leave the device), `activeTab` + `scripting` (read the current page's text on user action), `storage` (local persistence), `sidePanel` (UI). Broad host access is **not** requested at install time.
 
 ## Contributing
 
