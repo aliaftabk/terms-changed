@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms Changed?</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <!-- ============================ ONBOARDING ============================ -->
+    <section id="onboarding" class="onboarding hidden" aria-hidden="true">
+      <div class="onboarding-card">
+        <div class="brand">
+          <img src="/icons/icon48.png" alt="" class="brand-logo" />
+          <h1>Terms Changed?</h1>
+        </div>
+        <p class="lead">Track important page changes privately.</p>
+        <ul class="onboarding-points">
+          <li>Watch terms, privacy policies, pricing pages, job posts, and docs.</li>
+          <li>See exactly what was added or removed since you last saved.</li>
+          <li>Everything is stored locally on your device.</li>
+        </ul>
+        <div class="privacy-callout">
+          Terms Changed? stores watched page snapshots locally on your device.
+          Your watched pages and page text are not sent to our servers.
+        </div>
+        <button id="onboarding-start" class="btn btn-primary btn-block">
+          Start watching pages
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================== APP ================================= -->
+    <div id="app" class="app hidden">
+      <header class="app-header">
+        <div class="brand-mini">
+          <img src="/icons/icon32.png" alt="" class="brand-logo-mini" />
+          <span>Terms Changed?</span>
+        </div>
+        <nav class="tabs" role="tablist">
+          <button class="tab active" data-view="current" role="tab">Current</button>
+          <button class="tab" data-view="watched" role="tab">Watched</button>
+          <button class="tab" data-view="history" role="tab">History</button>
+          <button class="tab" data-view="settings" role="tab">Settings</button>
+          <button class="tab" data-view="privacy" role="tab">Privacy</button>
+        </nav>
+      </header>
+
+      <main class="views">
+        <!-- ---------------------- CURRENT PAGE ---------------------- -->
+        <section id="view-current" class="view active">
+          <div class="card">
+            <div class="card-head">
+              <h2>Current Page</h2>
+              <span id="current-badge" class="badge badge-muted">—</span>
+            </div>
+            <div class="page-title" id="current-title">Loading…</div>
+            <div class="page-url" id="current-url"></div>
+
+            <div id="current-status-block" class="status-block hidden">
+              <div class="status-row">
+                <span class="status-label">Last checked</span>
+                <span id="current-last-checked" class="status-value">—</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">Last changed</span>
+                <span id="current-last-changed" class="status-value">—</span>
+              </div>
+              <div class="status-row">
+                <span class="status-label">Status</span>
+                <span id="current-status" class="status-value">—</span>
+              </div>
+            </div>
+
+            <div id="current-not-watched" class="hint hidden">
+              This page is not being watched yet.
+            </div>
+
+            <!-- Watch form (shown when not watched) -->
+            <div id="watch-form" class="watch-form hidden">
+              <label class="field">
+                <span>Custom label (optional)</span>
+                <input type="text" id="watch-label" placeholder="e.g. Netflix Terms" />
+              </label>
+              <label class="field">
+                <span>Category</span>
+                <select id="watch-category">
+                  <option value="Terms">Terms</option>
+                  <option value="Privacy">Privacy</option>
+                  <option value="Pricing">Pricing</option>
+                  <option value="Job">Job</option>
+                  <option value="Docs">Docs</option>
+                  <option value="Product">Product</option>
+                  <option value="Other" selected>Other</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="btn-row">
+              <button id="btn-watch" class="btn btn-primary hidden">Watch this page</button>
+              <button id="btn-check" class="btn btn-primary hidden">Check for changes</button>
+              <button id="btn-update-baseline" class="btn btn-secondary hidden">Update baseline</button>
+              <button id="btn-stop" class="btn btn-danger-ghost hidden">Stop watching</button>
+            </div>
+
+            <div id="current-message" class="inline-message hidden"></div>
+          </div>
+
+          <!-- Inline result summary after a check -->
+          <div id="check-result" class="card hidden">
+            <div class="card-head">
+              <h2>Last check result</h2>
+            </div>
+            <div id="check-result-body"></div>
+            <button id="btn-open-diff" class="btn btn-secondary btn-block hidden">
+              View full diff
+            </button>
+          </div>
+        </section>
+
+        <!-- ---------------------- WATCHED PAGES ---------------------- -->
+        <section id="view-watched" class="view">
+          <div class="card">
+            <div class="card-head">
+              <h2>Watched Pages</h2>
+              <span id="watched-count" class="badge badge-muted">0</span>
+            </div>
+            <div class="filters">
+              <input type="search" id="watched-search" placeholder="Search title or domain…" />
+              <select id="watched-filter-category">
+                <option value="">All categories</option>
+                <option value="Terms">Terms</option>
+                <option value="Privacy">Privacy</option>
+                <option value="Pricing">Pricing</option>
+                <option value="Job">Job</option>
+                <option value="Docs">Docs</option>
+                <option value="Product">Product</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div id="watched-list" class="list"></div>
+          <div id="watched-empty" class="empty hidden">
+            No watched pages yet. Open a page you care about and click
+            “Watch this page”.
+          </div>
+        </section>
+
+        <!-- ---------------------- CHANGE HISTORY ---------------------- -->
+        <section id="view-history" class="view">
+          <div class="card">
+            <div class="card-head">
+              <h2>Change History</h2>
+              <span id="history-count" class="badge badge-muted">0</span>
+            </div>
+          </div>
+          <div id="history-list" class="list"></div>
+          <div id="history-empty" class="empty hidden">
+            No changes recorded yet. When a watched page changes, it will show
+            up here.
+          </div>
+        </section>
+
+        <!-- ---------------------- SETTINGS ---------------------- -->
+        <section id="view-settings" class="view">
+          <div class="card">
+            <div class="card-head"><h2>Comparison</h2></div>
+            <label class="toggle">
+              <input type="checkbox" id="set-ignore-whitespace" />
+              <span>Ignore whitespace-only changes</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="set-ignore-case" />
+              <span>Ignore case changes</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="set-ignore-numbers" />
+              <span>Ignore numbers</span>
+            </label>
+            <label class="field">
+              <span>Minimum change threshold (%)</span>
+              <input type="number" id="set-threshold" min="0" max="100" step="0.5" />
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="set-highlight-keywords" />
+              <span>Highlight important keywords</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" id="set-store-history" />
+              <span>Store full change history (uses more space)</span>
+            </label>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Automatic checks</h2>
+              <span class="badge badge-muted">Coming soon</span>
+            </div>
+            <label class="toggle toggle-disabled">
+              <input type="checkbox" id="set-auto-checks" disabled />
+              <span>
+                Automatically check watched pages in the background.
+                This optional beta requires granting permission for each site
+                individually and is not enabled in this release.
+              </span>
+            </label>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h2>Storage</h2></div>
+            <div id="storage-estimate" class="hint">Calculating usage…</div>
+            <button id="btn-delete-all" class="btn btn-danger btn-block">
+              Delete all local data
+            </button>
+          </div>
+        </section>
+
+        <!-- ---------------------- PRIVACY ---------------------- -->
+        <section id="view-privacy" class="view">
+          <div class="card">
+            <div class="card-head"><h2>Privacy</h2></div>
+            <p class="privacy-callout">
+              Terms Changed? stores watched page snapshots locally on your
+              device. Your watched pages and page text are not sent to our
+              servers.
+            </p>
+            <ul class="privacy-list">
+              <li>The extension stores watched page URLs and page text locally.</li>
+              <li>The extension does not send page content to any external server.</li>
+              <li>The extension does not sell your data.</li>
+              <li>The extension does not use ads or tracking.</li>
+              <li>You can delete all data at any time.</li>
+            </ul>
+            <button id="btn-delete-all-2" class="btn btn-danger btn-block">
+              Delete all local data
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ============================ DIFF VIEW ============================ -->
+    <div id="diff-view" class="overlay hidden" aria-hidden="true">
+      <div class="overlay-panel">
+        <div class="overlay-head">
+          <button id="diff-back" class="btn-icon" aria-label="Back">←</button>
+          <div class="overlay-title">
+            <div id="diff-title" class="page-title">Changes</div>
+            <div id="diff-subtitle" class="page-url"></div>
+          </div>
+        </div>
+
+        <nav class="subtabs" role="tablist">
+          <button class="subtab active" data-difftab="summary">Summary</button>
+          <button class="subtab" data-difftab="added">Added</button>
+          <button class="subtab" data-difftab="removed">Removed</button>
+          <button class="subtab" data-difftab="full">Full Diff</button>
+        </nav>
+
+        <div class="overlay-body">
+          <div id="difftab-summary" class="difftab active"></div>
+          <div id="difftab-added" class="difftab"></div>
+          <div id="difftab-removed" class="difftab"></div>
+          <div id="difftab-full" class="difftab diff-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ DIALOGS ============================ -->
+    <div id="confirm-dialog" class="overlay overlay-center hidden" aria-hidden="true">
+      <div class="dialog">
+        <div id="confirm-title" class="dialog-title">Are you sure?</div>
+        <div id="confirm-message" class="dialog-message"></div>
+        <div class="dialog-actions">
+          <button id="confirm-cancel" class="btn btn-secondary">Cancel</button>
+          <button id="confirm-ok" class="btn btn-danger">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ TOAST ============================ -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+</html>

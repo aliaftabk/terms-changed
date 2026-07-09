@@ -1,0 +1,16 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Python cache (from tools/gen_icons.py)
+__pycache__/
+*.pyc
+
+# Local scratch / build output
+*.log
+node_modules/
