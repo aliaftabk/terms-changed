@@ -550,16 +550,16 @@ function buildWatchedItem(p) {
   title.className = "item-title";
   title.textContent = p.userLabel || p.pageTitle || "(untitled)";
 
-  const meta = document.createElement("div");
-  meta.className = "item-meta";
-  meta.appendChild(makeBadge(statusToBadge(p.status), statusLabel(p.status)));
-  meta.appendChild(makeBadge("muted", p.category || "Other"));
-  const domainSpan = document.createElement("span");
-  domainSpan.textContent = p.domain || "";
-  meta.appendChild(domainSpan);
-  const checkedSpan = document.createElement("span");
-  checkedSpan.textContent = "checked " + timeAgo(p.lastCheckedAt);
-  meta.appendChild(checkedSpan);
+  const badges = document.createElement("div");
+  badges.className = "item-badges";
+  badges.appendChild(makeBadge(statusToBadge(p.status), statusLabel(p.status)));
+  badges.appendChild(makeBadge("muted", p.category || "Other"));
+
+  const sub = document.createElement("div");
+  sub.className = "item-sub";
+  sub.appendChild(textSpan(p.domain || ""));
+  sub.appendChild(dot());
+  sub.appendChild(textSpan("checked " + timeAgo(p.lastCheckedAt)));
 
   const actions = document.createElement("div");
   actions.className = "item-actions";
@@ -594,7 +594,7 @@ function buildWatchedItem(p) {
   });
 
   actions.append(openBtn, matchBtn, delBtn);
-  item.append(title, meta, actions);
+  item.append(title, badges, sub, actions);
   return item;
 }
 
@@ -626,21 +626,21 @@ function buildHistoryItem(rec) {
   title.className = "item-title";
   title.textContent = rec.pageTitle || "(untitled)";
 
-  const meta = document.createElement("div");
-  meta.className = "item-meta";
-  meta.appendChild(makeBadge("changed", `${rec.changePercentage}% changed`));
-  const domainSpan = document.createElement("span");
-  domainSpan.textContent = rec.domain || "";
-  meta.appendChild(domainSpan);
-  const dateSpan = document.createElement("span");
-  dateSpan.textContent = formatDate(rec.checkedAt);
-  meta.appendChild(dateSpan);
+  const badges = document.createElement("div");
+  badges.className = "item-badges";
+  badges.appendChild(makeBadge("changed", `${rec.changePercentage}% changed`));
+
+  const sub = document.createElement("div");
+  sub.className = "item-sub";
+  sub.appendChild(textSpan(rec.domain || ""));
+  sub.appendChild(dot());
+  sub.appendChild(textSpan(formatDate(rec.checkedAt)));
 
   if (rec.alerts && rec.alerts.length) {
-    const alertSpan = document.createElement("span");
-    alertSpan.textContent =
-      "⚠ " + rec.alerts.map((a) => a.category).join(", ");
-    meta.appendChild(alertSpan);
+    sub.appendChild(dot());
+    const alertSpan = textSpan("⚠ " + rec.alerts.map((a) => a.category).join(", "));
+    alertSpan.className = "item-alerts";
+    sub.appendChild(alertSpan);
   }
 
   const actions = document.createElement("div");
@@ -651,7 +651,7 @@ function buildHistoryItem(rec) {
     })
   );
 
-  item.append(title, meta, actions);
+  item.append(title, badges, sub, actions);
   return item;
 }
 
@@ -947,6 +947,19 @@ function metric(kind, num, label) {
   l.textContent = label;
   div.append(n, l);
   return div;
+}
+
+function textSpan(text) {
+  const span = document.createElement("span");
+  span.textContent = text;
+  return span;
+}
+
+function dot() {
+  const span = document.createElement("span");
+  span.className = "dot";
+  span.textContent = "·";
+  return span;
 }
 
 function emptyNode(text) {
